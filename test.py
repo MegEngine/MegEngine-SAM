@@ -12,21 +12,28 @@ from mge_segment_anything import (
 )
 
 
-def compare_with_torch():
+checkpoints = {
+    "vit_b": "sam_vit_b_01ec64.pth",
+    "vit_h": "sam_vit_h_4b8939.pth",
+    "vit_l": "sam_vit_l_0b3195.pth"
+}
+
+
+def compare_with_torch(model_name = "vit_b"):
     from segment_anything import SamAutomaticMaskGenerator as TSamAutomaticMaskGenerator
     from segment_anything import sam_model_registry as T_sam_model_registry
 
     checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
-    checkpoint = os.path.join(checkpoint_dir, "sam_vit_b_01ec64.pth")
+    checkpoint = os.path.join(checkpoint_dir, checkpoints[model_name])
 
     def get_mge_result(img):
-        sam = sam_model_registry["vit_b"](checkpoint=checkpoint)
+        sam = sam_model_registry[model_name](checkpoint=checkpoint)
         mask_generator = SamAutomaticMaskGenerator(sam)
         masks = mask_generator.generate(img)
         return masks
 
     def get_torch_result(img):
-        sam = T_sam_model_registry["vit_b"](checkpoint=checkpoint)
+        sam = T_sam_model_registry[model_name](checkpoint=checkpoint)
         mask_generator = TSamAutomaticMaskGenerator(sam)
         masks = mask_generator.generate(img)
         return masks
@@ -71,10 +78,10 @@ def show_anns(anns):
         ax.imshow(np.dstack((img, m * 0.35)))
 
 
-def test_predictor():
+def test_predictor(model_name = "vit_b"):
     checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
-    sam = sam_model_registry["vit_b"](
-        checkpoint=os.path.join(checkpoint_dir, "sam_vit_b_01ec64.pth")
+    sam = sam_model_registry[model_name](
+        checkpoint=os.path.join(checkpoint_dir, checkpoints[model_name])
     )
     predictor = SamPredictor(sam)
 
@@ -105,10 +112,10 @@ def test_predictor():
             )
 
 
-def test_automatic_mask_generator():
+def test_automatic_mask_generator(model_name = "vit_b"):
     checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
-    sam = sam_model_registry["vit_b"](
-        checkpoint=os.path.join(checkpoint_dir, "sam_vit_b_01ec64.pth")
+    sam = sam_model_registry[model_name](
+        checkpoint=os.path.join(checkpoint_dir, checkpoints[model_name])
     )
     mask_generator = SamAutomaticMaskGenerator(sam)
 
@@ -131,6 +138,6 @@ def test_automatic_mask_generator():
 
 
 if __name__ == "__main__":
-    # compare_with_torch()
-    test_automatic_mask_generator()
-    test_predictor()
+    compare_with_torch()
+    # test_automatic_mask_generator()
+    # test_predictor()
