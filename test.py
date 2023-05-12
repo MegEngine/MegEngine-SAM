@@ -13,44 +13,10 @@ from mge_segment_anything import (
 
 
 checkpoints = {
-    "vit_b": "sam_vit_b_01ec64.pth",
-    "vit_h": "sam_vit_h_4b8939.pth",
-    "vit_l": "sam_vit_l_0b3195.pth"
+    "vit_b": "sam_vit_b_01ec64.pkl",
+    "vit_h": "sam_vit_h_4b8939.pkl",
+    "vit_l": "sam_vit_l_0b3195.pkl"
 }
-
-
-def compare_with_torch(model_name = "vit_b"):
-    from segment_anything import SamAutomaticMaskGenerator as TSamAutomaticMaskGenerator
-    from segment_anything import sam_model_registry as T_sam_model_registry
-
-    checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
-    checkpoint = os.path.join(checkpoint_dir, checkpoints[model_name])
-
-    def get_mge_result(img):
-        sam = sam_model_registry[model_name](checkpoint=checkpoint)
-        mask_generator = SamAutomaticMaskGenerator(sam)
-        masks = mask_generator.generate(img)
-        return masks
-
-    def get_torch_result(img):
-        sam = T_sam_model_registry[model_name](checkpoint=checkpoint)
-        mask_generator = TSamAutomaticMaskGenerator(sam)
-        masks = mask_generator.generate(img)
-        return masks
-
-    img_path = os.path.join(os.path.dirname(__file__), "images", "src", "dog.jpg")
-    img = cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB)
-
-    mge_results = get_mge_result(img)
-    torch_results = get_torch_result(img)
-
-    assert len(mge_results) == len(torch_results)
-    for mr, tr in zip(mge_results, torch_results):
-        assert len(mr) == len(tr)
-        for k in mr.keys():
-            mv = np.array(mr[k], "float64")
-            tv = np.array(tr[k], "float64")
-            np.testing.assert_allclose(mv, tv, atol=1e-4)
 
 
 def show_mask(mask, ax, random_color=False):
@@ -138,6 +104,5 @@ def test_automatic_mask_generator(model_name = "vit_b"):
 
 
 if __name__ == "__main__":
-    compare_with_torch()
-    # test_automatic_mask_generator()
+    test_automatic_mask_generator()
     # test_predictor()

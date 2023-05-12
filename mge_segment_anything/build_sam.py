@@ -15,39 +15,36 @@ from .modeling import (
 )
 
 
-def build_sam_vit_h(checkpoint=None, load_from_torch_weights=True):
+def build_sam_vit_h(checkpoint=None):
     return _build_sam(
         encoder_embed_dim=1280,
         encoder_depth=32,
         encoder_num_heads=16,
         encoder_global_attn_indexes=[7, 15, 23, 31],
         checkpoint=checkpoint,
-        load_from_torch_weights=load_from_torch_weights,
     )
 
 
 build_sam = build_sam_vit_h
 
 
-def build_sam_vit_l(checkpoint=None, load_from_torch_weights=True):
+def build_sam_vit_l(checkpoint=None):
     return _build_sam(
         encoder_embed_dim=1024,
         encoder_depth=24,
         encoder_num_heads=16,
         encoder_global_attn_indexes=[5, 11, 17, 23],
         checkpoint=checkpoint,
-        load_from_torch_weights=load_from_torch_weights,
     )
 
 
-def build_sam_vit_b(checkpoint=None, load_from_torch_weights=True):
+def build_sam_vit_b(checkpoint=None):
     return _build_sam(
         encoder_embed_dim=768,
         encoder_depth=12,
         encoder_num_heads=12,
         encoder_global_attn_indexes=[2, 5, 8, 11],
         checkpoint=checkpoint,
-        load_from_torch_weights=load_from_torch_weights,
     )
 
 
@@ -65,7 +62,6 @@ def _build_sam(
     encoder_num_heads,
     encoder_global_attn_indexes,
     checkpoint=None,
-    load_from_torch_weights=False,
 ):
     prompt_embed_dim = 256
     image_size = 1024
@@ -107,55 +103,8 @@ def _build_sam(
     sam.eval()
     mge_state_dict = sam.state_dict()
     if checkpoint is not None:
-        if load_from_torch_weights:
-
-            def get_state_dict_from_torch(checkpoint):
-                import torch
-
-                with open(checkpoint, "rb") as f:
-                    torch_state_dict = torch.load(f)
-
-                either_have = set(mge_state_dict.keys()) | set(torch_state_dict.keys())
-                both_have = set(mge_state_dict.keys()) & set(torch_state_dict.keys())
-                only_mge_have = set(mge_state_dict.keys()) - set(
-                    torch_state_dict.keys()
-                )
-                only_torch_have = set(torch_state_dict.keys()) - set(
-                    mge_state_dict.keys()
-                )
-
-                if not either_have == both_have:
-                    if len(only_mge_have) != 0:
-                        print(f"mge have but torch miss:")
-                        for k in only_mge_have:
-                            print(f"    {k}: {mge_state_dict[k].shape}")
-                    if len(only_torch_have) != 0:
-                        print(f"torch have but mge miss:")
-                        for k in only_torch_have:
-                            print(f"    {k}: {torch_state_dict[k].shape}")
-
-                processed_state_dict = {}
-                for k in both_have:
-                    mv = mge_state_dict[k]
-                    tv = torch_state_dict[k]
-                    if mv.shape != tuple(tv.shape):
-                        if np.prod(mv.shape) != np.prod(tv.shape):
-                            print(
-                                f"{k}: mge-shape{mv.shape}, torch-shape{tuple(tv.shape)}"
-                            )
-                            continue
-                        tv = tv.reshape(mv.shape)
-                    processed_state_dict[k] = np.array(tv.cpu().numpy(), dtype=mv.dtype)
-                return processed_state_dict
-
-            mge_state_dict = get_state_dict_from_torch(checkpoint)
-            sam.load_state_dict(mge_state_dict, strict=False)
-            if not os.path.exists(checkpoint.replace(".pth", ".pkl")):
-                with open(checkpoint.replace(".pth", ".pkl"), "wb") as f:
-                    mge.save(sam.state_dict(), f)
-        else:
-            with open(checkpoint, "rb") as f:
-                mge_state_dict = mge.load(f)
-            sam.load_state_dict(mge_state_dict)
+        with open(checkpoint, "rb") as f:
+            mge_state_dict = mge.load(f)
+        sam.load_state_dict(mge_state_dict)
 
     return sam
