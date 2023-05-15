@@ -11,11 +11,10 @@ from mge_segment_anything import (
     sam_model_registry,
 )
 
-
 checkpoints = {
     "vit_b": "sam_vit_b_01ec64.pkl",
     "vit_h": "sam_vit_h_4b8939.pkl",
-    "vit_l": "sam_vit_l_0b3195.pkl"
+    "vit_l": "sam_vit_l_0b3195.pkl",
 }
 
 
@@ -44,7 +43,7 @@ def show_anns(anns):
         ax.imshow(np.dstack((img, m * 0.35)))
 
 
-def test_predictor(model_name = "vit_b"):
+def test_predictor(model_name="vit_b"):
     checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
     sam = sam_model_registry[model_name](
         checkpoint=os.path.join(checkpoint_dir, checkpoints[model_name])
@@ -78,7 +77,7 @@ def test_predictor(model_name = "vit_b"):
             )
 
 
-def test_automatic_mask_generator(model_name = "vit_b"):
+def test_automatic_mask_generator(model_name="vit_b"):
     checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
     sam = sam_model_registry[model_name](
         checkpoint=os.path.join(checkpoint_dir, checkpoints[model_name])
@@ -104,5 +103,4 @@ def test_automatic_mask_generator(model_name = "vit_b"):
 
 
 if __name__ == "__main__":
-    test_automatic_mask_generator()
-    # test_predictor()
+    test_automatic_mask_generator("vit_h")

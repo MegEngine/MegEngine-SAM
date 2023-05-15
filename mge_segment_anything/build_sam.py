@@ -13,6 +13,7 @@ from .modeling import (
     Sam,
     TwoWayTransformer,
 )
+from .weights_helper import set_model_weights
 
 
 def build_sam_vit_h(checkpoint=None):
@@ -101,10 +102,6 @@ def _build_sam(
         pixel_std=[58.395, 57.12, 57.375],
     )
     sam.eval()
-    mge_state_dict = sam.state_dict()
     if checkpoint is not None:
-        with open(checkpoint, "rb") as f:
-            mge_state_dict = mge.load(f)
-        sam.load_state_dict(mge_state_dict)
-
+        sam = set_model_weights(sam, checkpoint)
     return sam
