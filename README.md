@@ -56,17 +56,33 @@ So you can use MegEngine-SAM to generate mask with the prompt like the torch ver
 
 ```python
 from mge_segment_anything import SamPredictor, sam_model_registry
+
+predictor = SamPredictor(pretrained=True)
+
+# If you are unable to download the weights due to network issues
+# you can manually load the downloaded weights using the following method.
+
 predictor = SamPredictor(
     sam_model_registry["model_name"](checkpoint="<path/to/checkpoint>")
 )
+
 predictor.set_image(<your_image>)
 masks, _, _ = predictor.predict(<input_prompts>)
 ```
+
 
 Or generate masks for a whole image:
 
 ```python
 from mge_segment_anything import SamAutomaticMaskGenerator, sam_model_registry
+
+mask_generator = SamAutomaticMaskGenerator(
+    sam_model_registry["<model_type>"](pretrained=True)
+)
+
+# If you are unable to download the weights due to network issues
+# you can manually load the downloaded weights using the following method.
+
 mask_generator = SamAutomaticMaskGenerator(
     sam_model_registry["<model_type>"](checkpoint="<path/to/checkpoint>")
 )

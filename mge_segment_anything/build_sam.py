@@ -4,6 +4,7 @@ from functools import partial
 import numpy as np
 
 import megengine as mge
+from megengine import hub
 from megengine import module as M
 
 from .modeling import (
@@ -16,6 +17,7 @@ from .modeling import (
 from .weights_helper import set_model_weights
 
 
+@hub.pretrained("https://huggingface.co/ccq-mgevii/MegEngine-SAM/resolve/main/sam_vit_h_4b8939.pkl")
 def build_sam_vit_h(checkpoint=None):
     return _build_sam(
         encoder_embed_dim=1280,
@@ -29,6 +31,7 @@ def build_sam_vit_h(checkpoint=None):
 build_sam = build_sam_vit_h
 
 
+@hub.pretrained("https://huggingface.co/ccq-mgevii/MegEngine-SAM/resolve/main/sam_vit_l_0b3195.pkl")
 def build_sam_vit_l(checkpoint=None):
     return _build_sam(
         encoder_embed_dim=1024,
@@ -38,7 +41,7 @@ def build_sam_vit_l(checkpoint=None):
         checkpoint=checkpoint,
     )
 
-
+@hub.pretrained("https://huggingface.co/ccq-mgevii/MegEngine-SAM/resolve/main/sam_vit_b_01ec64.pkl")
 def build_sam_vit_b(checkpoint=None):
     return _build_sam(
         encoder_embed_dim=768,
@@ -104,4 +107,5 @@ def _build_sam(
     sam.eval()
     if checkpoint is not None:
         sam = set_model_weights(sam, checkpoint)
+    sam.load_state_dict = partial(sam.load_state_dict, strict=False)
     return sam
