@@ -44,10 +44,7 @@ def show_anns(anns):
 
 
 def test_predictor(model_name="vit_b"):
-    checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
-    sam = sam_model_registry[model_name](
-        checkpoint=os.path.join(checkpoint_dir, checkpoints[model_name])
-    )
+    sam = sam_model_registry[model_name](pretrained=True)
     predictor = SamPredictor(sam)
 
     src_img_dir = os.path.join(os.path.dirname(__file__), "images", "src")
@@ -78,10 +75,7 @@ def test_predictor(model_name="vit_b"):
 
 
 def test_automatic_mask_generator(model_name="vit_b"):
-    checkpoint_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
-    sam = sam_model_registry[model_name](
-        checkpoint=os.path.join(checkpoint_dir, checkpoints[model_name])
-    )
+    sam = sam_model_registry[model_name](pretrained=True)
     mask_generator = SamAutomaticMaskGenerator(sam)
 
     src_img_dir = os.path.join(os.path.dirname(__file__), "images", "src")
@@ -103,4 +97,4 @@ def test_automatic_mask_generator(model_name="vit_b"):
 
 
 if __name__ == "__main__":
-    test_automatic_mask_generator("vit_h")
+    test_automatic_mask_generator("vit_l")

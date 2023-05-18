@@ -54,9 +54,15 @@ MegEngine-SAM 的 api 和原始版本的 [segment-anything](https://github.com/f
 
 ```python
 from mge_segment_anything import SamPredictor, sam_model_registry
+
+predictor = SamPredictor(
+    sam_model_registry["model_name"](pretrained=True)
+)
+# 如果因为网络原因无法下载权重，可以使用如下方式手动加载下载好的权重
 predictor = SamPredictor(
     sam_model_registry["model_name"](checkpoint="<path/to/checkpoint>")
 )
+
 predictor.set_image(<your_image>)
 masks, _, _ = predictor.predict(<input_prompts>)
 ```
@@ -65,6 +71,11 @@ masks, _, _ = predictor.predict(<input_prompts>)
 
 ```python
 from mge_segment_anything import SamAutomaticMaskGenerator, sam_model_registry
+
+mask_generator = SamAutomaticMaskGenerator(
+    sam_model_registry["<model_type>"](pretrained=True)
+)
+# 如果因为网络原因无法下载权重，可以使用如下方式手动加载下载好的权重
 mask_generator = SamAutomaticMaskGenerator(
     sam_model_registry["<model_type>"](checkpoint="<path/to/checkpoint>")
 )
